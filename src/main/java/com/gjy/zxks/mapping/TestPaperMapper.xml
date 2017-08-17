@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gjy.zxks.dao.TestPaperMapper" >
+  <resultMap id="BaseResultMap" type="com.gjy.zxks.po.TestPaper" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="stuid" property="stuid" jdbcType="VARCHAR" />
+    <result column="examid" property="examid" jdbcType="INTEGER" />
+    <result column="start" property="start" jdbcType="TIMESTAMP" />
+    <result column="timeuse" property="timeuse" jdbcType="INTEGER" />
+    <result column="used" property="used" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    testpaper.id, testpaper.stuid, testpaper.examid, testpaper.used, testpaper.start, testpaper.timeuse,
+    users.nick as stuname
+  </sql>
+  <select id="getByExamId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM testpaper
+    LEFT JOIN users ON testpaper.stuid = users.user_id
+    WHERE examid = #{0}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from testpaper
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from testpaper
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gjy.zxks.po.TestPaper" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into testpaper (stuid, examid, used, start, timeuse)
+    values (#{stuid,jdbcType=VARCHAR}, #{examid,jdbcType=INTEGER}, #{used,jdbcType=CHAR}, #{start,jdbcType=TIMESTAMP},
+    #{timeuse,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gjy.zxks.po.TestPaper" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into testpaper
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="used != null" >
+        used,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="used != null" >
+        #{used,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gjy.zxks.po.TestPaper" >
+    update testpaper
+    <set >
+      <if test="used != null" >
+        used = #{used,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gjy.zxks.po.TestPaper" >
+    update testpaper
+    set stuid = #{stuid,jdbcType=VARCHAR}, examid = #{examid,jdbcType=INTEGER}, used = #{used,jdbcType=CHAR},
+     start = #{start,jdbcType=TIMESTAMP}, timeuse = #{timeuse,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

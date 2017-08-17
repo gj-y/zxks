@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gjy.zxks.dao.ExamMapper" >
+  <resultMap id="BaseResultMap" type="com.gjy.zxks.po.Exam" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="createrid" property="createrid" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="INTEGER" />
+    <result column="num" property="num" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="used" property="used" jdbcType="CHAR" />
+    <result column="starttime" property="starttime" jdbcType="TIMESTAMP" />
+    <result column="examname" property="examname" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    exam.id, exam.createrid, exam.time, exam.num, exam.status, exam.used, exam.starttime, examname
+  </sql>
+  <select id="hasMyExam" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    SELECT
+    <include refid="Base_Column_List" />,testpaper.id as testid
+    FROM exam
+    LEFT JOIN testpaper
+    on exam.id = testpaper.examid
+    WHERE testpaper.stuid = #{0} AND ((unix_timestamp(now())-unix_timestamp(exam.starttime)) &lt; exam.time*60)
+  </select>
+  <select id="hasExamProceed" resultType="java.lang.Integer" parameterType="java.lang.String">
+    SELECT
+    count(id)
+    FROM exam
+    WHERE createrid = #{0} AND ((unix_timestamp(now())-unix_timestamp(exam.starttime)) &lt; exam.time*60)
+  </select>
+  <select id="selectExamsByStuid" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    SELECT
+    <include refid="Base_Column_List" />,testpaper.id as testid
+    FROM exam
+    LEFT JOIN testpaper
+    on exam.id = testpaper.examid
+    WHERE testpaper.stuid = #{0}
+    ORDER BY exam.starttime DESC
+  </select>
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    SELECT
+    <include refid="Base_Column_List" />,testpaper.id as testid
+    FROM exam
+    LEFT JOIN testpaper
+    on exam.id = testpaper.examid
+    WHERE testpaper.stuid = #{0} AND ((unix_timestamp(now())-unix_timestamp(exam.starttime)) &lt; exam.time*60)
+    AND (testpaper.start='' or testpaper.start is null )
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from exam
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from exam
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gjy.zxks.po.Exam" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into exam (createrid, time, num, 
+      status, used, starttime, examname
+      )
+    values (#{createrid,jdbcType=INTEGER}, #{time,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, 
+      #{status,jdbcType=CHAR}, #{used,jdbcType=CHAR}, #{starttime,jdbcType=TIMESTAMP}, #{examname, jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.gjy.zxks.po.Exam" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into exam
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="createrid != null" >
+        createrid,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="num != null" >
+        num,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="used != null" >
+        used,
+      </if>
+      <if test="starttime != null" >
+        starttime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="createrid != null" >
+        #{createrid,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=INTEGER},
+      </if>
+      <if test="num != null" >
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="used != null" >
+        #{used,jdbcType=CHAR},
+      </if>
+      <if test="starttime != null" >
+        #{starttime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gjy.zxks.po.Exam" >
+    update exam
+    <set >
+      <if test="createrid != null" >
+        createrid = #{createrid,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=INTEGER},
+      </if>
+      <if test="num != null" >
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="used != null" >
+        used = #{used,jdbcType=CHAR},
+      </if>
+      <if test="starttime != null" >
+        starttime = #{starttime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gjy.zxks.po.Exam" >
+    update exam
+    set createrid = #{createrid,jdbcType=INTEGER},
+      time = #{time,jdbcType=INTEGER},
+      num = #{num,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      used = #{used,jdbcType=CHAR},
+      starttime = #{starttime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
